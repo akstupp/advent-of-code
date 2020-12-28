@@ -40,6 +40,6 @@ fun partB(input: List<String>): Int {
     return counter
 }
 
-var input = readInputFile("2input")
+var input = readInputFile("2_input")
 println(partA(input))
 println(partB(input))

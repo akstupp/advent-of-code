@@ -21,7 +21,7 @@ fun partB(vals: List<Int>): Int {
     return -1
 }
 
-var stringVals = readInputFile("1input")
+var stringVals = readInputFile("1_input")
 var vals  = stringVals.map { s -> Integer.valueOf(s) }
 val answerA = partA(vals)
 val answerB = partB(vals)
