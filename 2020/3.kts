@@ -20,20 +20,29 @@ fun countTrees(map: ArrayList<ArrayList<Int>>, slopeHorizontal: Int, slopeVertic
     var treeCounter = 0
     var i = 0;
     var j = 0;
-    var coords: Pair<Int, Int>
-    while (i < map.size - 1) {
-        coords = Pair(i + slopeVertical, j + slopeHorizontal)
-        println("x: " + coords.first + " y: " + coords.second % map[0].size)
-        treeCounter.plus(map.get(coords.first).get(coords.second % map.get(0).size))
+    while (true) {
         i = i + slopeVertical
-        j = j + slopeHorizontal
+        if (i >= map.size)
+            break
+        j = (j + slopeHorizontal) % map.get(0).size
+        treeCounter = treeCounter.plus(map.get(i).get(j))
     }
     return treeCounter
 }
 
+fun checkSlopes(map: ArrayList<ArrayList<Int>>): Long {
+    var product: Long = 1L
+    var slopes: Array<Pair<Int, Int>> = arrayOf(Pair(1, 1), Pair(3, 1), Pair(5, 1), Pair(7, 1), Pair(1, 2))
+    for (pair in slopes) {
+        var trees = countTrees(map, pair.first, pair.second)
+        product = product * trees
+    }
+    return product
+}
+
 var lines = readInputFile("3_input")
 var map = toTreesMap(lines)
-println(map)
 var partAResult = countTrees(map, 3, 1)
 println(partAResult)
-//var partBResult = partB(map)
+var partBResult = checkSlopes(map)
+println(partBResult)
