@@ -1,55 +1,58 @@
 import java.io.File
+import java.util.LinkedList
 
-class LuggageNode {
-    val descriptor: String
-    val contents: Set<LuggageNode>
+val BAG_COLOR = "shiny gold"
+
+typealias Color = String
+typealias Content = Pair<Int, Color>
+
+fun parseRulesToMap(filename: String): Map<Color, List<Content>> {
+    return File(filename).readLines()
+            .associate { line ->
+                val (bag, inside) = line.split(" bags contain ")
+                val contents: List<Pair<Int, String>> = inside.split(", ")
+                        .mapNotNull { e ->
+                            val (n, adj, color) = e.split(' ')
+                            n.toIntOrNull()?.let { it to "$adj $color" }
+                        }
+                bag to contents
+            }
 }
 
-fun parseLuggageRules(filename: String): Set<LuggageNode> {
-    var lines = File(filename).readLines()
-    var nodeSet = mutableSetOf<LuggageNode>()
-    for (line in lines) {
-        nodeSet = parseLuggageNode(line, nodeSet)
-    }
-    return nodeSet
-}
-
-fun parseLuggageNode(line: String, existingNodes: MutableSet<LuggageNode>): MutableSet<LuggageNode> {
-    val regex = Regex("(\\sbags\\scontain\\s)|(\\sbag,\\s)|(\\sbag[.])|(\\sbags,\\s)|(\\sbags[.])")
-    val regexArray = line.split(regex).map { s -> s.replace(Regex("\\d\\s"), "") }
-    val trimmed = regexArray.map { s -> s.trim() }.filter { s -> s.isNotBlank() }
-    var nodes: MutableList<LuggageNode> = trimmed.map { s ->
-        val maybeNode = existingNodes.singleOrNull { n -> n.descriptor = s }
-        if (maybeNode == null) {
-            var node = LuggageNode()
-            node.descriptor = s
-            existingNodes.add(node)
-            node
-        } else {
-            maybeNode
+fun bagCanContainColor(map: Map<Color, List<Content>>, start: Color, target: Color): Int {
+    var queue: LinkedList<Color> = LinkedList()
+    var visited: MutableSet<Color> = mutableSetOf(start)
+    queue.add(start)
+    while (queue.isNotEmpty()) {
+        val current = queue.remove()
+        if (current.equals(target)) return 1
+        for (content in map.get(current)!!) {
+            if (visited.contains(content.second).not()) {
+                visited.add(content.second)
+                queue.add(content.second)
+            }
         }
     }
-    var first = nodes.first()
-    nodes.removeAt(0)
-    first.contents = nodes.toSet()
-    return existingNodes
+    return 0
 }
 
-fun breadthFirstSearch(start: LuggageNode, target: LuggageNode): Int {
-
-}
-
-fun findShinyGoldBags(nodes: Set<LuggageNode>): Int {
-    var shinyGold = nodes.single { n -> n.descriptor = "shiny gold" }
+fun findShinyGoldBags(bagMap: Map<Color, List<Content>>): Int {
     var count = 0
-    for (node in nodes) {
-        count = count + breadthFirstSearch(node, shinyGold)
+    for (color in bagMap.keys) {
+        count = count + bagCanContainColor(bagMap, color, BAG_COLOR)
     }
-    return count
+    return count - 1 // exclude shiny gold as outer bag
 }
 
-var input = "plaid tan bags contain 4 clear magenta bags, 5 posh brown bags, 5 drab lime bags."
+fun getInnerBagCount(bagMap: Map<Color, List<Content>>, color: Color): Int {
+    return bagMap.get(color)!!.sumBy { (count, inner) ->
+        count + (count * getInnerBagCount(bagMap, inner))
+    }
+}
 
-parseLuggageGraph("5_input")
-
+var colorsToContentsMap: Map<Color, List<Content>> = parseRulesToMap("7_input")
+var count = findShinyGoldBags(colorsToContentsMap)
+println(count)
+var bagsInShinyGold = getInnerBagCount(colorsToContentsMap, BAG_COLOR)
+println(bagsInShinyGold)
 
