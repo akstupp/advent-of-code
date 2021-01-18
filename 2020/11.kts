@@ -12,9 +12,8 @@ fun parsePlaneSeats(filename: String): Plane {
 
 fun countOccupiedSeats(plane: Plane): Int {
     var current: Pair<Int, Plane> = executeSeatShuffle(plane)
-    while (current.first != 0) {
+    while (current.first != 0)
         current = executeSeatShuffle(current.second)
-    }
     return current.second.sumBy { row -> row.count { it.equals(occupied)} }
 }
 
@@ -63,17 +62,12 @@ fun printPlane(plane: Plane) {
 
 fun deepCopyPlane(plane: Plane): Plane {
     var mutated: MutableList<CharArray> = mutableListOf()
-    for (row in plane) {
-        var copy = row.copyOf()
-        mutated.add(copy)
-    }
+    for (row in plane)
+        mutated.add(row.copyOf())
     return mutated.toTypedArray()
 }
 
 var plane: Plane = parsePlaneSeats("11_input")
-//var (changed, mutated) = executeSeatShuffle(plane)
-//printPlane(mutated)
-
 var finalOccupiedCount = countOccupiedSeats(plane)
 println(finalOccupiedCount)
 
