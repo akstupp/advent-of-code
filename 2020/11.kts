@@ -10,27 +10,27 @@ fun parsePlaneSeats(filename: String): Plane {
         line -> line.toCharArray() }.toTypedArray()
 }
 
-fun countOccupiedSeats(plane: Plane): Int {
-    var current: Pair<Int, Plane> = executeSeatShuffle(plane)
+fun countOccupiedSeats(plane: Plane, useAdjacentNeighbors: Boolean, limit: Int): Int {
+    var current: Pair<Int, Plane> = executeSeatShuffle(plane, useAdjacentNeighbors, limit)
     while (current.first != 0)
-        current = executeSeatShuffle(current.second)
+        current = executeSeatShuffle(current.second, useAdjacentNeighbors, limit)
     return current.second.sumBy { row -> row.count { it.equals(occupied)} }
 }
 
-fun executeSeatShuffle(plane: Plane): Pair<Int, Plane> {
+fun executeSeatShuffle(plane: Plane, useAdjacentNeighbors: Boolean, limit: Int): Pair<Int, Plane> {
     var counter = 0
     val rows = plane.indices
     val cols = plane[0].indices
     var newPlane = deepCopyPlane(plane)
     for (r in rows) {
         for (c in cols) {
-            var neighbors: List<Char> = getNeighbors(r, c, plane)
+            var neighbors: List<Char> = if (useAdjacentNeighbors) getNeighbors(r, c, plane) else getClosestSeats(r, c, plane)
             var currentSeat = plane[r][c]
             if (currentSeat.equals(empty).and(neighbors.none { it.equals(occupied) })) {
                 counter++
                 newPlane[r][c] = occupied
             }
-            if (currentSeat.equals(occupied).and(neighbors.count {it.equals(occupied)} >= 4 )) {
+            if (currentSeat.equals(occupied).and(neighbors.count {it.equals(occupied)} >= limit )) {
                 counter++
                 newPlane[r][c] = empty
             }
@@ -55,9 +55,31 @@ fun getNeighbors(row: Int, col: Int, plane: Plane): List<Char> {
     return neighbors
 }
 
-fun printPlane(plane: Plane) {
-    plane.forEach { r -> println(r) }
-    println("---")
+fun getClosestSeats(row: Int, col: Int, plane: Plane): List<Char> {
+    var closest = mutableListOf<Char>()
+    for (rowSlope in -1..1) {
+        for (colSlope in -1..1) {
+            if (rowSlope == 0 && colSlope == 0) {
+                continue
+            }
+            var multiplier = 1
+            while (true) {
+                val newRow = multiplier * rowSlope + row
+                val newCol = multiplier * colSlope + col
+                if (newRow in plane.indices && newCol in plane[0].indices) {
+                    if (plane[newRow][newCol].equals(floor).not()) {
+                        closest.add(plane[newRow][newCol])
+                        break
+                    } else {
+                        multiplier++
+                    }
+                } else {
+                    break
+                }
+            }
+        }
+    }
+    return closest
 }
 
 fun deepCopyPlane(plane: Plane): Plane {
@@ -68,8 +90,12 @@ fun deepCopyPlane(plane: Plane): Plane {
 }
 
 var plane: Plane = parsePlaneSeats("11_input")
-var finalOccupiedCount = countOccupiedSeats(plane)
-println(finalOccupiedCount)
+// Part 1
+var adjacentHeuristic = countOccupiedSeats(plane, true, 4)
+println("Part 1: $adjacentHeuristic")
+// Part 2
+var closestHeuristic = countOccupiedSeats(plane, false, 5)
+println("Part 2: $closestHeuristic")
 
 
 
