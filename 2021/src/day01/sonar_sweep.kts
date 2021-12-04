@@ -5,7 +5,7 @@ fun readInputFile(filename: String): List<Int> {
 }
 
 fun countIncrements(depths: List<Int>): Int {
-    return depths.filterIndexed { index, elem -> depths.elementAtOrNull(index + 1)?.let { it > elem } ?: false }.count()
+    return depths.windowed(2).count { a, b -> a < b }
 }
 
 fun countIncreasingWindows(depths: List<Int>): Int {
