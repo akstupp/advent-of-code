@@ -15,6 +15,6 @@ val depths = File("data").readLines().map { it.toInt() }
 val incrementCount = countIncrements(depths)
 println("Part One: $incrementCount")
 // Part 2
-val slidingWindowCount = countIncreasingWindows(input)
+val slidingWindowCount = countIncreasingWindows(depths)
 println("Part Two: $slidingWindowCount")
 
