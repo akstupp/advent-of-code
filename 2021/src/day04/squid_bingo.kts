@@ -8,14 +8,12 @@ class BingoBoard(var board: MutableList<List<BingoEntry>>) {
     }
 
     fun hasWon(): Boolean {
-        for (row in board) {
+        for (row in board)
             if (row.all { entry -> entry.marked })
                 return true
-        }
-        for (col in board[0].indices) {
+        for (col in board[0].indices)
             if (board.all { row -> row[col].marked })
                 return true
-        }
         return false
     }
 
@@ -29,7 +27,7 @@ class BingoBoard(var board: MutableList<List<BingoEntry>>) {
 
 data class Game(val boards: List<BingoBoard>, val numbers: List<Int>)
 
-fun parseInput(filename: String): Game {
+fun parseGame(filename: String): Game {
     val lines = File(filename).readLines()
     val numbers = lines.first().split(",").map { it.toInt() }
     // Second line is whitespace
@@ -74,11 +72,11 @@ fun playGame(game: Game, greedy: Boolean): Int {
     return boardScore
 }
 
-var game = parseInput("test")
+var game = parseGame("test")
 check(playGame(game, true) == 4512)
 check(playGame(game, false) == 1924)
 
-game = parseInput("data")
+game = parseGame("data")
 val one = playGame(game, true)
 val two = playGame(game, false)
 println("Part 1: $one")

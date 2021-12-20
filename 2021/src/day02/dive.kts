@@ -2,7 +2,7 @@ import java.io.File
 
 data class Direction(val direction: String, val distance: Int) {}
 
-fun readInputFile(filename: String): List<Direction> {
+fun parseDirections(filename: String): List<Direction> {
     return File(filename).readLines().map { line ->
         val (dir, dist) = line.split(" ", limit = 2)
         Direction(dir, dist.toInt())
@@ -38,7 +38,7 @@ fun navigateWithAim(directions: List<Direction>): Int {
     return distance * depth
 }
 
-val directions: List<Direction> = readInputFile("data")
+val directions: List<Direction> = parseDirections("data")
 // Part 1
 var product = navigate(directions)
 println("Part 1: $product")

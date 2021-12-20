@@ -2,7 +2,7 @@ import java.io.File
 import java.nio.charset.Charset
 
 // Returns a map of counts of each fish in the input
-fun parseInput(filename: String): Map<Int, Int> {
+fun parseFish(filename: String): Map<Int, Int> {
     return File(filename).readText(Charset.defaultCharset())
             .split(",")
             .map { it.toInt() }
@@ -34,14 +34,13 @@ fun spawn(iterations: Int, dayToCount: Map<Int, Int>): Long {
     return spawnCounts.values.sum()
 }
 
-var input = parseInput("test")
+var input = parseFish("test")
 check(spawn(80, input) == 5934L)
 check(spawn(256, input) == 26984457539L)
 
-input = parseInput("data")
-
+input = parseFish("data")
 val part1 = spawn(80, input)
-println("part 1: $part1")
+println("Part 1: $part1")
 
 val part2 = spawn(256, input)
 println("Part 2: $part2")

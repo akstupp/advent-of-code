@@ -3,13 +3,13 @@ import java.nio.charset.Charset
 import java.util.Comparator
 import kotlin.math.absoluteValue
 
-fun parse(filename: String): List<Int> {
+fun parseCrabs(filename: String): List<Int> {
     return File(filename).readText(Charset.defaultCharset())
             .split(",")
             .map { it.toInt() }
 }
 
-fun findCheapestCrabDistance(crabs: List<Int>, cumulative: Boolean): Int {
+fun minimalHammingDistance(crabs: List<Int>, cumulative: Boolean): Int {
     return IntRange(0, crabs.max()!!).map { crab ->
         crabs.map {
             val diff = crab.minus(it).absoluteValue
@@ -18,12 +18,12 @@ fun findCheapestCrabDistance(crabs: List<Int>, cumulative: Boolean): Int {
     }.min()!!
 }
 
-var crabs: List<Int> = parse("test")
-check(findCheapestCrabDistance(crabs, cumulative = false) == 37)
-check(findCheapestCrabDistance(crabs, cumulative = true) == 168)
+var crabs: List<Int> = parseCrabs("test")
+check(minimalHammingDistance(crabs, cumulative = false) == 37)
+check(minimalHammingDistance(crabs, cumulative = true) == 168)
 
-crabs = parse("data")
-var answer = findCheapestCrabDistance(crabs, cumulative = false)
+crabs = parseCrabs("data")
+var answer = minimalHammingDistance(crabs, cumulative = false)
 println("Part 1: $answer")
-answer = findCheapestCrabDistance(crabs, cumulative = true)
+answer = minimalHammingDistance(crabs, cumulative = true)
 println("Part 2: $answer")
