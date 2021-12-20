@@ -10,13 +10,12 @@ fun parse(filename: String): List<Int> {
 }
 
 fun findCheapestCrabDistance(crabs: List<Int>, cumulative: Boolean): Int {
-    return IntRange(0, crabs.max()!!).associateWith { crab ->
-        crabs.map { crab.minus(it).absoluteValue }
-    }.mapValues {
-        it.value.map { dist ->
-            if (cumulative) (dist * (dist + 1)) / 2 else dist
+    return IntRange(0, crabs.max()!!).map { crab ->
+        crabs.map {
+            val diff = crab.minus(it).absoluteValue
+            if (cumulative) (diff * (diff + 1)) / 2 else diff
         }.sum()
-    }.minBy { it.value }!!.value
+    }.min()!!
 }
 
 var crabs: List<Int> = parse("test")
