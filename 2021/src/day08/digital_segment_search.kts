@@ -1,30 +1,66 @@
 import java.io.File
 
-// technically should be ~ordered but i'm lazy and the kotlin implementation
-// uses a linked hash set
 typealias Signal = Set<Char>
 
-val chars = listOf('a', 'b', 'c', 'd', 'e', 'f', 'g')
-val displayMap = mapOf(
-        "abcefg" to 0,
-        "cf" to 1,
-        "acdeg" to 2,
-        "acdfg" to 3,
-        "bcdf" to 4,
-        "abdfg" to 5,
-        "abdefg" to 6,
-        "acf" to 7,
-        "abcdefg" to 8,
-        "abcdfg" to 9
-)
-
 data class Display(val unique: List<Signal>, val output: List<Signal>) {
-    fun one() = unique.find { it.size == 2 }!!
-    fun four() = unique.find { it.size == 4 }!!
-    fun seven() = unique.find { it.size == 3 }!!
-    fun eight() = unique.find { it.size == 7 }!!
+    private fun one() = unique.find { it.size == 2 }!!
+    private fun four() = unique.find { it.size == 4 }!!
+    private fun seven() = unique.find { it.size == 3 }!!
+    private fun eight() = unique.find { it.size == 7 }!!
     fun uniqueOutputs() = output.count { signal ->
         signal in listOf(one(), four(), seven(), eight())
+    }
+
+    // Decode the unique signals by deduction - deduced by hand
+    private fun decode(): Map<Signal, Int> {
+        val index = mutableMapOf<Signal, Int>()
+        index.put(one(), 1)
+        index.put(four(), 4)
+        index.put(seven(), 7)
+        index.put(eight(), 8)
+
+        // keep a map from the original signal to the mutated signal to place
+        // in the index
+        val fives = unique.filter { it.size == 5 }
+                .associateWith { sig -> sig.toMutableSet() }
+                .toMutableMap()
+        var common = fives.values.reduce { prev, set ->
+            prev.intersect(set).toMutableSet()
+        }
+        fives.values.forEach { candidate -> candidate.removeAll(common) }
+        val two = fives.entries.single { !four().containsAll(it.value) }
+        fives.remove(two.key)
+        index.put(two.key, 2)
+        val three = fives.entries.single { one().containsAll(it.value) }
+        fives.remove(three.key)
+        index.put(three.key, 3)
+        index.put(fives.entries.single().key, 5)
+
+        val sixes = unique.filter { it.size == 6 }
+                .associateWith { sig -> sig.toMutableSet() }
+                .toMutableMap()
+        common = sixes.values.reduce { prev, set ->
+            prev.intersect(set).toMutableSet()
+        }
+        sixes.values.forEach { it.removeAll(common) }
+        val nine = sixes.entries.single { four().containsAll(it.value) }
+        sixes.remove(nine.key)
+        index.put(nine.key, 9)
+        val zero = sixes.entries.single { one().intersect(it.value).isNotEmpty() }
+        sixes.remove(zero.key)
+        index.put(zero.key, 0)
+        index.put(sixes.entries.single().key, 6)
+        return index
+    }
+
+    fun decodeOutput(): Int {
+        val mapping = decode()
+        val builder = StringBuilder()
+        for (signal in output) {
+            val target = mapping[signal]!!
+            builder.append(target)
+        }
+        return builder.toString().toInt()
     }
 }
 
@@ -42,10 +78,16 @@ fun countUniqueSegments(displays: List<Display>): Int {
     return displays.map { it.uniqueOutputs() }.sum()
 }
 
+fun sumOutputs(displays: List<Display>): Int {
+    return displays.map { it.decodeOutput() }.sum()
+}
+
 var displays = parseDisplays("test")
 check(countUniqueSegments(displays) == 26)
-// TODO(part two): check(sumOutputs(displays) == 61229)
+check(sumOutputs(displays) == 61229)
 
 displays = parseDisplays("data")
-val answer = countUniqueSegments(displays)
+var answer = countUniqueSegments(displays)
 println("Part 1: $answer")
+answer = sumOutputs(displays)
+println("Part 2: $answer")
