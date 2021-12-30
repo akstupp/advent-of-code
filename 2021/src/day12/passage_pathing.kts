@@ -17,7 +17,7 @@ data class CaveSystem(val neighbors: Map<Node, Set<Node>>) {
                 if (node == "end") {
                     val newPath = path.toMutableList()
                     newPath.add(node)
-                    paths.add(path)
+                    paths.add(newPath)
                 } else {
                     neighbors[node]!!.forEach {
                         val newPath = path.toMutableList()
