@@ -1,9 +1,9 @@
 import java.io.File
 
-typealias Rule = Pair<Char, Char>
-
-data class Polymer(val chain: List<Char>, val insertions: Map<Rule, Char>) {
-
+data class Polymer(
+    val chain: List<Char>,
+    val insertions: Map<Pair<Char, Char>, Char>
+) {
     fun grow(iterations: Int): Long {
         val counts = chain.toSet().associateWith { a ->
             chain.count { b -> b == a }.toLong()
@@ -43,9 +43,9 @@ data class Polymer(val chain: List<Char>, val insertions: Map<Rule, Char>) {
             }.map { line ->
                 line.toCharArray().filter { it.isLetter() }
             }.map { chars ->
-                Rule(chars[0], chars[1]) to chars[2]
+                Pair(chars[0], chars[1]) to chars[2]
             }.toMap()
-            return Polymer(LinkedList<Char>(chain.toList()), insertions)
+            return Polymer(chain.toList(), insertions)
         }
     }
 }
